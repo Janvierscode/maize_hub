@@ -21,8 +21,8 @@ class Validations{
   }
 
   static String? validateName(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your name';
+    if (value == null || value.isEmpty || value.trim().length < 4) {
+      return 'Please enter at least 4 characters.';
     }
     return null;
   }

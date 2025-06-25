@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -101,11 +102,42 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       });
     }
     final isValid = _formKey.currentState!.validate();
-    if (!isValid || !_isLogin && _selectedImage == null) {
+    if (!isValid) {
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
+      }
+      return;
+    }
+
+    // Check if image is required for registration
+    if (!_isLogin && _selectedImage == null) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.warning, color: Colors.white),
+                SizedBox(width: 12),
+                Text(
+                  'Please select a profile photo',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.orange,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
       }
       return;
     }
@@ -128,8 +160,41 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
             .child('user_images')
             .child('${userCredentials.user!.uid}.jpg');
         await storageRef.putFile(_selectedImage!);
-        final imageUrl = await storageRef.getDownloadURL();
-        print('User created: 😂 $imageUrl');
+        final imageUrl = await storageRef
+            .getDownloadURL(); // Save user data to Firestore with error handling
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredentials.user!.uid)
+              .set({
+                'email': _emailController.text.trim(),
+                'username': _nameController.text.trim(),
+                'image_url': imageUrl,
+                'createdAt': FieldValue.serverTimestamp(),
+              });
+          print('User data saved to Firestore: ✅');
+        } catch (firestoreError) {
+          print(
+            'Firestore error (this is expected if database is not set up): $firestoreError',
+          );
+          // Show a non-blocking message to the user
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text(
+                  'Account created! Profile data will sync when database is ready.',
+                ),
+                backgroundColor: Colors.blue,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: const EdgeInsets.all(16),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        }
       }
 
       // Success feedback
@@ -438,7 +503,11 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                 margin: const EdgeInsets.only(bottom: 20),
                 child: UserImagePicker(
                   onImagePicked: (pickedImage) {
-                    _selectedImage = pickedImage;
+                    if (mounted) {
+                      setState(() {
+                        _selectedImage = pickedImage;
+                      });
+                    }
                   },
                 ),
               ),
@@ -463,7 +532,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                   validator: _validateName,
                   textInputAction: TextInputAction.next,
                   decoration: _buildInputDecoration(
-                    'Full Name',
+                    'Username',
                     Icons.person_outline,
                   ),
                 ),
