@@ -38,8 +38,9 @@ class _NewMessageState extends State<NewMessage> {
       'userId': user.uid,
       'username': userData.data()!['username'],
       'userImage': userData.data()!['image_url'],
+      'status': 'sent', // sent, delivered, read
+      'readBy': <String>[], // List of user IDs who have read this message
     });
-
   }
 
   @override

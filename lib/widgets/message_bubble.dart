@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 // A MessageBubble for showing a single chat message on the ChatScreen.
 class MessageBubble extends StatelessWidget {
@@ -9,13 +11,21 @@ class MessageBubble extends StatelessWidget {
     required this.username,
     required this.message,
     required this.isMe,
+    required this.timestamp,
+    required this.messageStatus,
+    required this.isUserOnline,
+    this.readBy = const [],
   }) : isFirstInSequence = true;
 
-  // Create a amessage bubble that continues the sequence.
+  // Create a message bubble that continues the sequence.
   const MessageBubble.next({
     super.key,
     required this.message,
     required this.isMe,
+    required this.timestamp,
+    required this.messageStatus,
+    required this.isUserOnline,
+    this.readBy = const [],
   }) : isFirstInSequence = false,
        userImage = null,
        username = null;
@@ -39,6 +49,18 @@ class MessageBubble extends StatelessWidget {
   // Controls how the MessageBubble will be aligned.
   final bool isMe;
 
+  // Message timestamp
+  final Timestamp timestamp;
+
+  // Message status (sent, delivered, read)
+  final String messageStatus;
+
+  // Whether the user is currently online
+  final bool isUserOnline;
+
+  // List of user IDs who have read this message
+  final List<String> readBy;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -50,10 +72,29 @@ class MessageBubble extends StatelessWidget {
             top: 15,
             // Align user image to the right, if the message is from me.
             right: isMe ? 0 : null,
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(userImage!),
-              backgroundColor: theme.colorScheme.primary.withAlpha(180),
-              radius: 23,
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  backgroundImage: NetworkImage(userImage!),
+                  backgroundColor: theme.colorScheme.primary.withAlpha(180),
+                  radius: 23,
+                ),
+                // Online status indicator
+                if (isUserOnline)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         Container(
@@ -77,12 +118,28 @@ class MessageBubble extends StatelessWidget {
                   if (username != null)
                     Padding(
                       padding: const EdgeInsets.only(left: 13, right: 13),
-                      child: Text(
-                        username!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            username!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          if (isUserOnline) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
 
@@ -91,7 +148,9 @@ class MessageBubble extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isMe
                           ? Colors.grey[300]
-                          : theme.colorScheme.secondary.withAlpha(200),
+                          : theme.colorScheme.primaryContainer.withValues(
+                              alpha: 0.3,
+                            ),
                       // Only show the message bubble's "speaking edge" if first in
                       // the chain.
                       // Whether the "speaking edge" is on the left or right depends
@@ -120,17 +179,46 @@ class MessageBubble extends StatelessWidget {
                       vertical: 4,
                       horizontal: 12,
                     ),
-                    child: Text(
-                      message,
-                      style: TextStyle(
-                        // Add a little line spacing to make the text look nicer
-                        // when multilined.
-                        height: 1.3,
-                        color: isMe
-                            ? Colors.black87
-                            : theme.colorScheme.onSecondary,
-                      ),
-                      softWrap: true,
+                    child: Column(
+                      crossAxisAlignment: isMe
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          message,
+                          style: TextStyle(
+                            // Add a little line spacing to make the text look nicer
+                            // when multilined.
+                            height: 1.3,
+                            color: isMe
+                                ? Colors.black87
+                                : theme.colorScheme.onSurface,
+                          ),
+                          softWrap: true,
+                        ),
+                        const SizedBox(height: 4),
+                        // Timestamp and status row
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _formatTimestamp(timestamp),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isMe
+                                    ? Colors.black54
+                                    : theme.colorScheme.onSurface.withValues(
+                                        alpha: 0.6,
+                                      ),
+                              ),
+                            ),
+                            if (isMe) ...[
+                              const SizedBox(width: 4),
+                              _buildStatusIcon(),
+                            ],
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -140,5 +228,36 @@ class MessageBubble extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _formatTimestamp(Timestamp timestamp) {
+    final DateTime dateTime = timestamp.toDate();
+    final DateTime now = DateTime.now();
+    final Duration difference = now.difference(dateTime);
+
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inDays < 1) {
+      return DateFormat('HH:mm').format(dateTime);
+    } else if (difference.inDays < 7) {
+      return DateFormat('EEE HH:mm').format(dateTime);
+    } else {
+      return DateFormat('MMM dd, HH:mm').format(dateTime);
+    }
+  }
+
+  Widget _buildStatusIcon() {
+    switch (messageStatus) {
+      case 'sent':
+        return const Icon(Icons.check, size: 14, color: Colors.grey);
+      case 'delivered':
+        return const Icon(Icons.done_all, size: 14, color: Colors.grey);
+      case 'read':
+        return const Icon(Icons.done_all, size: 14, color: Colors.blue);
+      default:
+        return const SizedBox.shrink();
+    }
   }
 }

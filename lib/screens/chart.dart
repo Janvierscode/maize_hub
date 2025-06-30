@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:maize_hub/widgets/chat_messages.dart';
 import 'package:maize_hub/widgets/new_message.dart';
+import 'package:maize_hub/services/user_presence_service.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -22,6 +23,15 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     setupPushNotifications();
+    // Set user as online when entering chat
+    UserPresenceService.setUserOnline();
+  }
+
+  @override
+  void dispose() {
+    // Set user as offline when leaving chat
+    UserPresenceService.setUserOffline();
+    super.dispose();
   }
 
   @override
