@@ -171,6 +171,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                 'username': _nameController.text.trim(),
                 'image_url': imageUrl,
                 'createdAt': FieldValue.serverTimestamp(),
+                'isOnline': true,
+                'lastSeen': FieldValue.serverTimestamp(),
               });
           print('User data saved to Firestore: ✅');
         } catch (firestoreError) {

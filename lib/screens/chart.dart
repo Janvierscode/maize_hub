@@ -1,52 +1,62 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:maize_hub/widgets/chat_messages.dart';
-import 'package:maize_hub/widgets/new_message.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:flutter/material.dart';
+// import 'package:maize_hub/widgets/chat_messages.dart';
+// import 'package:maize_hub/widgets/new_message.dart';
+// import 'package:maize_hub/services/user_presence_service.dart';
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+// class ChatScreen extends StatefulWidget {
+//   const ChatScreen({super.key});
 
-  @override
-  State<ChatScreen> createState() => _ChatScreenState();
-}
+//   @override
+//   State<ChatScreen> createState() => _ChatScreenState();
+// }
 
-class _ChatScreenState extends State<ChatScreen> {
-  void setupPushNotifications() async {
-    final fcm = FirebaseMessaging.instance;
-    await fcm.requestPermission();
-    fcm.subscribeToTopic('chat');
-  }
+// class _ChatScreenState extends State<ChatScreen> {
+//   void setupPushNotifications() async {
+//     final fcm = FirebaseMessaging.instance;
+//     await fcm.requestPermission();
+//     fcm.subscribeToTopic('chat');
+//   }
 
-  @override
-  void initState() {
-    super.initState();
-    setupPushNotifications();
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     setupPushNotifications();
+//     // Set user as online when entering chat
+//     UserPresenceService.setUserOnline();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.exit_to_app,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-          ),
-        ],
-        title: const Text('Chat Screen'),
-      ),
-      body: Column(
-        children: [
-          Expanded(child: ChatMessages()),
-          const NewMessage(),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   void dispose() {
+//     // Set user as offline when leaving chat
+//     UserPresenceService.setUserOffline();
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         actions: [
+//           IconButton(
+//             icon: Icon(
+//               Icons.exit_to_app,
+//               color: Theme.of(context).colorScheme.primary,
+//             ),
+//             onPressed: () {
+//               FirebaseAuth.instance.signOut();
+//             },
+//           ),
+//         ],
+//         title: const Text('Chat Screen'),
+//       ),
+//       body: Column(
+//         children: [
+//           Expanded(child: ChatMessages()),
+//           const NewMessage(),
+//         ],
+//       ),
+//     );
+//   }
+// }

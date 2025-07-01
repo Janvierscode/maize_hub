@@ -1,5 +1,5 @@
 name: maize_hub
-description: "A new Flutter project."
+description: 'A new Flutter project.'
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -40,6 +40,12 @@ dependencies:
   image_picker: ^1.1.2
   cloud_firestore: ^5.6.9
   firebase_messaging: ^15.2.7
+  intl: ^0.19.0
+  permission_handler: ^12.0.0+1
+  # New Firebase AI SDK - unified approach for Gemini integration
+  firebase_ai: ^2.1.0
+  # Markdown support for AI responses
+  flutter_markdown: ^0.7.4+1
 
 dev_dependencies:
   flutter_test:
@@ -57,7 +63,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -65,4 +70,4 @@ flutter:
 
   assets:
     - assets/images/
-
+    - assets/models/model.tflite
