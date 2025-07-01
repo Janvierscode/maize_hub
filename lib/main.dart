@@ -3,11 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:maize_hub/screens/auth.dart';
 import 'package:maize_hub/widgets/main_navigation.dart';
+import 'package:maize_hub/theme/app_theme.dart';
+import 'package:maize_hub/services/ai_service.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize AI service once at app startup
+  try {
+    final aiService = AIService.getInstance();
+    await aiService.initialize();
+    debugPrint('AI Service initialized successfully');
+  } catch (e) {
+    debugPrint('AI Service initialization failed: $e');
+    // Continue without AI service - will be handled gracefully in the UI
+  }
+
   runApp(const MainApp());
 }
 
@@ -17,14 +30,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Maize Disease Classifier',
-      theme: ThemeData().copyWith(
-        // green color scheme for maize app
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: const Color(0xFF4CAF50),
-          secondary: const Color(0xFF81C784),
-        ),
-      ),
+      title: 'Maize Hub',
+      theme: AppTheme.lightTheme,
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {

@@ -41,9 +41,11 @@ dependencies:
   cloud_firestore: ^5.6.9
   firebase_messaging: ^15.2.7
   intl: ^0.19.0
-  google_generative_ai: ^0.4.7
   permission_handler: ^12.0.0+1
-
+  # New Firebase AI SDK - unified approach for Gemini integration
+  firebase_ai: ^2.1.0
+  # Markdown support for AI responses
+  flutter_markdown: ^0.7.4+1
 
 dev_dependencies:
   flutter_test:
@@ -68,3 +70,4 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/models/model.tflite

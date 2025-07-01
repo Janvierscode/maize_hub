@@ -119,9 +119,9 @@ This project is licensed under the "Please-Don't-Steal-My-Thesis" License. Just 
 
 Got questions? Found a bug? Want to discuss the future of agricultural technology?
 
-- **Email**: [your-email@university.edu]
-- **GitHub**: [your-github-username]
-- **LinkedIn**: [your-linkedin]
+- **Email**: [janvier,iyakaremye@students.uz.ac.zw]
+- **GitHub**: [janvierscode]
+- **LinkedIn**: [javierscode]
 - **Carrier Pigeon**: Not yet implemented
 
 ---

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:maize_hub/screens/ai_assistance_screen.dart';
 import 'package:maize_hub/screens/home_screen.dart';
 import 'package:maize_hub/screens/chat_screen.dart';
-import 'package:maize_hub/screens/ai_assistance_screen.dart';
 import 'package:maize_hub/screens/scan_screen.dart';
 import 'package:maize_hub/screens/profile_screen.dart';
 

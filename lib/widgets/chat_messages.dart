@@ -14,7 +14,6 @@ class ChatMessages extends StatefulWidget {
 class _ChatMessagesState extends State<ChatMessages> {
   // Constants for better maintainability
   static const double _listPadding = 40.0;
-  static const double _listHorizontalPadding = 13.0;
   static const double _cacheExtent = 1000.0;
   static const double _iconSize = 48.0;
   static const double _spacing = 16.0;
@@ -100,8 +99,9 @@ class _ChatMessagesState extends State<ChatMessages> {
         return ListView.builder(
           padding: const EdgeInsets.only(
             bottom: _listPadding,
-            left: _listHorizontalPadding,
-            right: _listHorizontalPadding,
+            left: 8,
+            right: 8,
+            top: 16,
           ),
           reverse: true,
           itemCount: loadedMessages.length,

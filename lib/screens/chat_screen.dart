@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:maize_hub/widgets/chat_messages.dart';
 import 'package:maize_hub/widgets/new_message.dart';
 import 'package:maize_hub/services/user_presence_service.dart';
+import 'package:maize_hub/theme/app_theme.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -49,10 +50,23 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
+      backgroundColor: AppTheme.chatBackground,
       body: Column(
         children: [
           Expanded(child: ChatMessages()),
-          const NewMessage(),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: const NewMessage(),
+          ),
         ],
       ),
     );
@@ -72,8 +86,7 @@ class _ChatScreenState extends State<ChatScreen> {
               SizedBox(height: 8),
               Text('🤝 Help fellow farmers'),
               SizedBox(height: 8),
-              Text('📸 Share crop photos for advice'),
-              SizedBox(height: 8),
+
               Text('🚫 Keep it respectful and relevant'),
             ],
           ),

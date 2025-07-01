@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:maize_hub/theme/app_theme.dart';
 
 // A MessageBubble for showing a single chat message on the ChatScreen.
 class MessageBubble extends StatelessWidget {
@@ -65,169 +66,165 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Stack(
-      children: [
-        if (userImage != null)
-          Positioned(
-            top: 15,
-            // Align user image to the right, if the message is from me.
-            right: isMe ? 0 : null,
-            child: Stack(
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+      child: Row(
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // Avatar for other users (left side)
+          if (!isMe && isFirstInSequence) _buildAvatar(theme),
+          if (!isMe && !isFirstInSequence) const SizedBox(width: 48),
+
+          // Message content
+          Flexible(
+            child: Column(
+              crossAxisAlignment: isMe
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(userImage!),
-                  backgroundColor: theme.colorScheme.primary.withAlpha(180),
-                  radius: 23,
-                ),
-                // Online status indicator
-                if (isUserOnline)
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                    ),
+                // Username and online status
+                if (isFirstInSequence && !isMe) _buildUserInfo(theme),
+
+                // Message bubble
+                Container(
+                  decoration: _getMessageDecoration(),
+                  padding: ChatTheme.messagePadding,
+                  margin: ChatTheme.messageMargin,
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.7,
                   ),
+                  child: Column(
+                    crossAxisAlignment: isMe
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
+                    children: [
+                      // Message text
+                      Text(
+                        message,
+                        style: TextStyle(
+                          color: isMe ? Colors.white : AppTheme.textPrimary,
+                          fontSize: 16,
+                          height: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Timestamp and status
+                      _buildMessageFooter(theme),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-        Container(
-          // Add some margin to the edges of the messages, to allow space for the
-          // user's image.
-          margin: const EdgeInsets.symmetric(horizontal: 46),
-          child: Row(
-            // The side of the chat screen the message should show at.
-            mainAxisAlignment: isMe
-                ? MainAxisAlignment.end
-                : MainAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: isMe
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
-                children: [
-                  // First messages in the sequence provide a visual buffer at
-                  // the top.
-                  if (isFirstInSequence) const SizedBox(height: 18),
-                  if (username != null)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 13, right: 13),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            username!,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          if (isUserOnline) ...[
-                            const SizedBox(width: 6),
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.green,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
 
-                  // The "speech" box surrounding the message.
-                  Container(
-                    decoration: BoxDecoration(
-                      color: isMe
-                          ? Colors.grey[300]
-                          : theme.colorScheme.primaryContainer.withValues(
-                              alpha: 0.3,
-                            ),
-                      // Only show the message bubble's "speaking edge" if first in
-                      // the chain.
-                      // Whether the "speaking edge" is on the left or right depends
-                      // on whether or not the message bubble is the current user.
-                      borderRadius: BorderRadius.only(
-                        topLeft: !isMe && isFirstInSequence
-                            ? Radius.zero
-                            : const Radius.circular(12),
-                        topRight: isMe && isFirstInSequence
-                            ? Radius.zero
-                            : const Radius.circular(12),
-                        bottomLeft: const Radius.circular(12),
-                        bottomRight: const Radius.circular(12),
-                      ),
-                    ),
-                    // Set some reasonable constraints on the width of the
-                    // message bubble so it can adjust to the amount of text
-                    // it should show.
-                    constraints: const BoxConstraints(maxWidth: 200),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 14,
-                    ),
-                    // Margin around the bubble.
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 12,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: isMe
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          message,
-                          style: TextStyle(
-                            // Add a little line spacing to make the text look nicer
-                            // when multilined.
-                            height: 1.3,
-                            color: isMe
-                                ? Colors.black87
-                                : theme.colorScheme.onSurface,
-                          ),
-                          softWrap: true,
-                        ),
-                        const SizedBox(height: 4),
-                        // Timestamp and status row
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _formatTimestamp(timestamp),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: isMe
-                                    ? Colors.black54
-                                    : theme.colorScheme.onSurface.withValues(
-                                        alpha: 0.6,
-                                      ),
-                              ),
-                            ),
-                            if (isMe) ...[
-                              const SizedBox(width: 4),
-                              _buildStatusIcon(),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+          // Avatar for current user (right side)
+          if (isMe && isFirstInSequence) _buildAvatar(theme),
+          if (isMe && !isFirstInSequence) const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(ThemeData theme) {
+    return Container(
+      margin: EdgeInsets.only(left: isMe ? 8 : 0, right: isMe ? 0 : 8),
+      child: Stack(
+        children: [
+          CircleAvatar(
+            radius: ChatTheme.avatarRadius,
+            backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+            backgroundImage: userImage != null
+                ? NetworkImage(userImage!)
+                : null,
+            child: userImage == null
+                ? Icon(Icons.person, color: theme.colorScheme.primary, size: 24)
+                : null,
+          ),
+          // Online indicator
+          if (isUserOnline)
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: AppTheme.onlineIndicator,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
               ),
-            ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserInfo(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 56, bottom: 4),
+      child: Row(
+        children: [
+          Text(
+            username ?? 'Unknown User',
+            style: theme.textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          if (isUserOnline) ...[
+            const SizedBox(width: 6),
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: AppTheme.onlineIndicator,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'online',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: AppTheme.onlineIndicator,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageFooter(ThemeData theme) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          _formatTimestamp(timestamp),
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: isMe ? Colors.white70 : AppTheme.messageStatus,
+            fontSize: 11,
           ),
         ),
+        if (isMe) ...[const SizedBox(width: 6), _buildStatusIcon()],
       ],
     );
+  }
+
+  BoxDecoration _getMessageDecoration() {
+    if (isMe) {
+      return isFirstInSequence
+          ? ChatTheme.myMessageDecoration
+          : ChatTheme.continuingMyMessageDecoration;
+    } else {
+      return isFirstInSequence
+          ? ChatTheme.otherMessageDecoration
+          : ChatTheme.continuingOtherMessageDecoration;
+    }
   }
 
   String _formatTimestamp(Timestamp timestamp) {
@@ -251,11 +248,15 @@ class MessageBubble extends StatelessWidget {
   Widget _buildStatusIcon() {
     switch (messageStatus) {
       case 'sent':
-        return const Icon(Icons.check, size: 14, color: Colors.grey);
+        return Icon(Icons.check, size: 14, color: Colors.white70);
       case 'delivered':
-        return const Icon(Icons.done_all, size: 14, color: Colors.grey);
+        return Icon(Icons.done_all, size: 14, color: Colors.white70);
       case 'read':
-        return const Icon(Icons.done_all, size: 14, color: Colors.blue);
+        return Icon(
+          Icons.done_all,
+          size: 14,
+          color: AppTheme.messageStatusRead,
+        );
       default:
         return const SizedBox.shrink();
     }
