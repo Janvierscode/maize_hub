@@ -19,7 +19,7 @@ A Flutter-powered mobile application for maize leaf disease classification and f
 - **Database**: Cloud Firestore
 - **Storage**: Firebase Storage
 - **Messaging**: Firebase Cloud Messaging
-- **AI/ML**: _[Your ML model here]_
+- **AI/ML**: _https://github.com/Janvierscode/maize_leaf_disease_model.git_
 
 ## 📱 Features
 
@@ -64,7 +64,7 @@ This project is part of my thesis research on **"AI-Powered Agricultural Solutio
 1. **Clone this repo** (you know the drill)
 
    ```bash
-   git clone [your-repo-url]
+   git clone https://github.com/Janvierscode/maize_hub.git
    cd maize_hub
    ```
 
@@ -119,13 +119,9 @@ This project is licensed under the "Please-Don't-Steal-My-Thesis" License. Just 
 
 Got questions? Found a bug? Want to discuss the future of agricultural technology?
 
-- **Email**: [janvier,iyakaremye@students.uz.ac.zw]
-- **GitHub**: [janvierscode]
-- **LinkedIn**: [javierscode]
-- **Carrier Pigeon**: Not yet implemented
-
+- **Email**: iyakaremyejanvier@gmail.com
+- **LinkedIn**: https://www.linkedin.com/in/iyakaremyejanvier/
 ---
 
-_"In a world full of bugs, be the one who fixes them."_ - Anonymous Developer (probably me at 3 AM)
 
 **Made with 🌽, ☕, and way too many late nights**
