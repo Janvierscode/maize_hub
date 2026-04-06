@@ -113,7 +113,7 @@ This is a thesis project, but if you're a fellow agricultural tech enthusiast or
 
 ## 📝 License
 
-This project is licensed under the "Please-Don't-Steal-My-Thesis" License. Just kidding, it's probably MIT or something reasonable.
+This project is licensed under the "Please-Don't-Steal-My-Thesis" License. Just kidding, it's  MIT.
 
 ## 📞 Contact
 
